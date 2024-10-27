@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Voice</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body style="background: url(https://img.freepik.com/free-vector/abstract-geometric-round-shape-blue-background-design_1017-42785.jpg); background-size: cover; background-repeat: no-repeat; color: white;">
+    <h1>Добро пожаловать, {{ username }}!</h1>
+    <h2>Список пользователей:</h2>
+    <ul id="user-list"></ul>
+
+    <h2>Чат:</h2>
+    <div id="chat-box"></div>
+    <input id="message-input" placeholder="Введите сообщение...">
+    <button id="send-message">Отправить</button>
+    
+    <input type="file" id="image-input" accept="image/*">
+
+    <h2>Звонки:</h2>
+    <input id="call-recipients" placeholder="Имена пользователей для звонка (через запятую)">
+    <button id="call-button">Позвонить</button>
+
+    <script>
+        const socket = io();
+
+        socket.on('update_user_list', function(usernames) {
+            $('#user-list').empty();
+            usernames.forEach(function(username) {
+                $('#user-list').append(`<li>${username}</li>`);
+            });
+        });
+
+        socket.on('text_message', function(data) {
+            $('#chat-box').append(`<div><strong>${data.username}:</strong> ${data.message}</div>`);
+        });
+
+        socket.on('image_message', function(data) {
+            $('#chat-box').append(`<div><strong>${data.username}:</strong> <img src="${data.image}" width="100"></div>`);
+        });
+
+        socket.on('call_request', function(data) {
+            if (confirm(`${data.caller} хочет с вами поговорить. Принять звонок?`)) {
+                socket.emit('accept_call', { caller: data.caller });
+            }
+        });
+
+        socket.on('call_accepted', function(data) {
+            alert(`${data.caller} принял ваш звонок!`);
+            $('#chat-box').append(`<div><strong>${data.caller}<span> присоединил(ась)ся к звонку</span></strong></div>`);
+            // Здесь можно добавить логику для управления аудио-вызовом
+        });
+
+        $('#send-message').click(function() {
+            const message = $('#message-input').val();
+            socket.emit('text_message', message);
+            $('#message-input').val('');
+            const file = $('#image-input')[0].files[0];
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                socket.emit('image_message', { image: reader.result });
+            };
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        $('#call-button').click(function() {
+            const recipients = $('#call-recipients').val().split(',').map(r => r.trim());
+            socket.emit('call_request', { recipients: recipients });
+        });
+    </script>
+</body>
+</html>

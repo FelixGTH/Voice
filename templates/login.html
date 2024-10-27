@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+    <style>
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Центрирование по вертикали */
+            height: 100vh; /* Занять всю высоту экрана */
+        }
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px; /* Добавлено внутреннее отступление */
+            text-align: center; /* Центрирование текста внутри контейнера */
+        }
+        input {
+            display: block; /* Каждый инпут будет на новой строке */
+            margin: 10px auto; /* Автоматическое выравнивание по центру */
+            width: 80%; /* Ширина инпутов */
+        }
+        button {
+            margin: 10px auto; /* Автоматическое выравнивание по центру */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Вход</h1>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Имя пользователя" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            <button type="submit">Войти</button>
+        </form>
+        <p>Нет аккаунта? <a href="{{ url_for('register') }}" style="text-decoration: none;">Зарегистрироваться</a></p>
+    </div>
+</body>
+</html>
